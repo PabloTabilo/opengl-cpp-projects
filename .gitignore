@@ -1,3 +1,11 @@
+bin/
+build/
+/.vs
+/.idea
+CMakeSettings.json
+Makefile
+
+
 # Prerequisites
 *.d
 
