@@ -1,2 +1,2 @@
-# spaceShip
-Build a game project only use C++ and opengl
+# Opengl with CPP projects
+Build differents games and simulations
