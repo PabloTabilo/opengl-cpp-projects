@@ -11,6 +11,9 @@
 #include "io/keyboard.h"
 #include "io/Mouse.h"
 #include "io/camera.h"
+#include "world/block.h"
+#include "world/Chunk.h"
+#include "world/HeightMapGeneration.h"
 
 unsigned int SCR_WIDTH = 1280;
 unsigned int SCR_HEIGHT = 720;
@@ -63,87 +66,24 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-	float vertices[] = {
-		// positions          // texCoords
-		// Back face
-	   -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  // bottom-left
-		0.5f, -0.5f, -0.5f,  0.25f, 0.0f, // bottom-right
-		0.5f,  0.5f, -0.5f,  0.25f, 1.0f, // top-right
-		0.5f,  0.5f, -0.5f,  0.25f, 1.0f, // top-right
-	   -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  // top-left
-	   -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  // bottom-left
+	Chunk myChunk;
+	HeightMapGeneration gen(myChunk.SIZE);
 
-	   // Front face
-	  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // bottom-left
-	   0.5f, -0.5f,  0.5f,  0.25f, 0.0f, // bottom-right
-	   0.5f,  0.5f,  0.5f,  0.25f, 1.0f, // top-right
-	   0.5f,  0.5f,  0.5f,  0.25f, 1.0f, // top-right
-	  -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  // top-left
-	  -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // bottom-left
-
-	  // Left face
-	 -0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // top-right
-	 -0.5f,  0.5f, -0.5f,  0.25f, 1.0f, // top-left
-	 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // bottom-left
-	 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // bottom-left
-	 -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // bottom-right
-	 -0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // top-right
-
-	 // Right face
-	 0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // top-left
-	 0.5f,  0.5f, -0.5f,  0.25f, 1.0f, // top-right
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // bottom-right
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // bottom-right
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // bottom-left
-	 0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // top-left
-
-	 // Bottom face
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // top-left
-	 0.5f, -0.5f, -0.5f,  0.25f, 1.0f, // top-right
-	 0.5f, -0.5f,  0.5f,  0.25f, 0.0f, // bottom-right
-	 0.5f, -0.5f,  0.5f,  0.25f, 0.0f, // bottom-right
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  // bottom-left
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  // top-left
-
-	// Top face
-   -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  // top-left
-	0.5f,  0.5f, -0.5f,  0.25f, 1.0f, // top-right
-	0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // bottom-right
-	0.5f,  0.5f,  0.5f,  0.25f, 0.0f, // bottom-right
-   -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  // bottom-left
-   -0.5f,  0.5f, -0.5f,  0.0f, 1.0f   // top-left
-	};
-
-
-	// world space positions of our cubes
-	//glm::vec3 cubePositions[] = {
-	//	glm::vec3(0.0f,  0.0f,  0.0f),
-	//	glm::vec3(0.0f,  0.0f, -5.0f),
-		//glm::vec3(-1.5f, -2.2f, -2.5f),
-		//glm::vec3(-3.8f, -2.0f, -12.3f),
-		//glm::vec3(2.4f, -0.4f, -3.5f),
-		//glm::vec3(-1.7f,  3.0f, -7.5f),
-		//glm::vec3(1.3f, -2.0f, -2.5f),
-		//glm::vec3(1.5f,  2.0f, -2.5f),
-		//glm::vec3(1.5f,  0.2f, -1.5f),
-		//glm::vec3(-1.3f,  1.0f, -1.5f)
-	//};
-	unsigned int n = 10, m = 10;
-	std::vector<glm::vec3> cubePositions;
-	float newXpos = 0.0f;
-	float gap = 1.1f;
-	float prevPos = 2.0f;
-	float newPos;
-	for (unsigned int i = 0; i < n; i++) {
-		prevPos = 2.0f;
-		for (unsigned int j = 0; j < m; j++) {
-			newPos = prevPos - gap;
-			cubePositions.push_back(glm::vec3(newXpos, 0.0f, newPos));
-			prevPos = newPos;
-		}
-		newXpos += gap;
+	
+	for (uint32_t i = 0; i < myChunk.cubes.size(); i++) {
+		myChunk.cubes[i]->setHeight(50.0f * gen.mapToindx[i]);
 	}
 	
+
+	/*
+	std::cout << "HeightMap:" << std::endl;
+	for (auto y : gen.myMap) {
+		for (auto x : y) {
+			std::cout << x << " ";
+		}
+		std::cout << std::endl;
+	}
+	*/
 
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -152,7 +92,7 @@ int main()
 	glBindVertexArray(VAO);
 	// Bind VBO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Block::verticesSize * sizeof(float), Block::vertices, GL_STATIC_DRAW);
 	// Cube
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -213,25 +153,14 @@ int main()
 
 		glBindVertexArray(VAO);
 
-		for (auto cubePos : cubePositions) {
+		for (auto cube : myChunk.cubes) {
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePos);
+			model = glm::translate(model, cube->getPosition());
 			//float angle = ((float)glfwGetTime() / -100.00f) + 20.0f * i;
 			//model = glm::rotate(model, sin((float)glfwGetTime() * glm::radians(50.0f)), glm::vec3(1.0f, 0.3f, 0.5f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-		/*
-		for (unsigned int i = 0; i < 10; i++) {
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			//float angle = ((float)glfwGetTime() / -100.00f) + 20.0f * i;
-			model = glm::rotate(model, sin((float)glfwGetTime() * glm::radians(50.0f)), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		*/
 
         glfwSwapBuffers(window);
         glfwPollEvents();
