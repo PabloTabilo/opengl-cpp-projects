@@ -5,8 +5,21 @@ build/
 /.vs
 /.idea
 CMakeSettings.json
-Makefile
 
+# Visual Studio cache & user files
+.vs/
+*.suo
+*.user
+*.VC.db
+
+# Keep the actual project & solution
+!*.sln
+!*.vcxproj
+!*.vcxproj.filters
+
+# Optional: other build outputs
+bin/
+obj/
 
 # Prerequisites
 *.d

@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
+#include <filesystem>
 
 #include "Shader.h"
 #include "io/keyboard.h"
@@ -26,10 +27,14 @@ void processInput(GLFWwindow* window, double dt);
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Camera camera(glm::vec3(0.0f, 0.0, 3.0));
+Camera camera(glm::vec3(+10.0f, 0.0, -32.0));
 
 int main()
 {
+	camera.updateCameraDirection(180.0f, 0.0f);
+	std::filesystem::current_path("C:/Users/pablotabilo/Documents/github/personal/learnOpenglcom/opengl-cpp-projects/BuildAnAutoGenerateTerrainMinecraftStyle/BuildAnAutoGenerateTerrainMinecraftStyle/");
+    std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -63,16 +68,21 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Shader shader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
-
+	
     glEnable(GL_DEPTH_TEST);
+
+	// this cutt portion of faces
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
 
 	Chunk myChunk;
 	HeightMapGeneration gen(myChunk.SIZE);
 
 	
-	for (uint32_t i = 0; i < myChunk.cubes.size(); i++) {
-		myChunk.cubes[i]->setHeight(50.0f * gen.mapToindx[i]);
-	}
+	//for (uint32_t i = 0; i < myChunk.cubes.size(); i++) {
+	//	myChunk.cubes[i]->setHeight(50.0f * gen.mapToindx[i]);
+	//}
 	
 
 	/*
@@ -130,13 +140,29 @@ int main()
 	shader.activate();
 	shader.setInt("texture1", 0);
 
+	double prevTime = 0.0;
+	double currentTime = 0.0;
+	double timeDiff = 0.0;
+	unsigned int counter = 0;
 
 
     while (!glfwWindowShouldClose(window))
     {
-		double currentTime = glfwGetTime();
+		currentTime = glfwGetTime();
 		deltaTime = currentTime - lastFrame;
 		lastFrame = currentTime;
+		timeDiff = currentTime - prevTime;
+		counter++;
+		if ((timeDiff >= 1.0 / 30.0)) {
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = "Debug : " + FPS + " FPS / " + ms + " ms";
+			glfwSetWindowTitle(window, newTitle.c_str());
+			prevTime = currentTime;
+			counter = 0;
+		}
+		
+		
 
         processInput(window, deltaTime);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -152,14 +178,19 @@ int main()
 		shader.setMat4("view", view);
 
 		glBindVertexArray(VAO);
+		
+		//std::cout << "Cubes: " << myChunk.cubes.size() << std::endl;
 
 		for (auto cube : myChunk.cubes) {
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cube->getPosition());
+			float distance = glm::distance(camera.cameraPos, cube->getPosition());
 			//float angle = ((float)glfwGetTime() / -100.00f) + 20.0f * i;
 			//model = glm::rotate(model, sin((float)glfwGetTime() * glm::radians(50.0f)), glm::vec3(1.0f, 0.3f, 0.5f));
-			shader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+			if (distance <= 50.0f) {
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, cube->getPosition());
+				shader.setMat4("model", model);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
 		}
 
         glfwSwapBuffers(window);

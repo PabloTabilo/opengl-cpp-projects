@@ -28,6 +28,26 @@ void Shader::activate() {
 	glUseProgram(id);
 }
 
+void Shader::checkCompileErrors(unsigned int shader, std::string type){
+	int success;
+	char infoLog[512];
+
+	if (type != "PROGRAM") {
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			glGetShaderInfoLog(shader, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::" << type << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+	}
+	else {
+		glGetProgramiv(shader, GL_LINK_STATUS, &success);
+		if (!success) {
+			glGetProgramInfoLog(shader, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::" << type << "::LINKING_FAILED\n" << infoLog << std::endl;
+		}
+	}
+}
+
 std::string Shader::loadShaderSrc(const char* filename) {
 	std::ifstream file;
 	std::stringstream buf;
@@ -58,7 +78,8 @@ GLuint Shader::compileShader(const char* filepath, GLenum type) {
 	glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(ret, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::string typeStr = (type == GL_VERTEX_SHADER) ? "VERTEX" : "FRAGMENT";
+		std::cout << "ERROR::SHADER::"<<typeStr<<"::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
 	return ret;

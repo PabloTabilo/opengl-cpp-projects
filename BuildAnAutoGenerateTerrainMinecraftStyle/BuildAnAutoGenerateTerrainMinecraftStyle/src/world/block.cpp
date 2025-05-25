@@ -1,4 +1,4 @@
-#include "block.h";
+#include "block.h"
 
 const float Block::vertices[] = {
 	// positions          // texCoords

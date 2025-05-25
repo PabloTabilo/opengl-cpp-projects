@@ -1,4 +1,4 @@
-#include "Chunk.h";
+#include "Chunk.h"
 
 const float gap = 1.1f;
 Chunk::Chunk() {
@@ -6,14 +6,11 @@ Chunk::Chunk() {
 	float gap = 1.1f;
 	float prevPos = 2.0f;
 	float newPos;
-	for (unsigned int i = 0; i < SIZE; i++) {
-		prevPos = 2.0f;
-		for (unsigned int j = 0; j < SIZE; j++) {
-			newPos = prevPos - gap;
-			cubes.push_back(new Block(glm::vec3(newXpos, 0.0f, newPos)));
-			prevPos = newPos;
+	for (unsigned int x = 0; x < SIZE; x++) {
+		for (unsigned int y = 0; y < SIZE; y++) {
+			for(unsigned int z = 0; z < SIZE; z++)
+			cubes.push_back(new Block(glm::vec3((x*1.0f), (y*1.0f), (z*1.0f) ) ) );
 		}
-		newXpos += gap;
 	}
 
 }

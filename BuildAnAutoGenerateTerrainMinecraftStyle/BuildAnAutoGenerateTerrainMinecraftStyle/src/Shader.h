@@ -16,6 +16,7 @@ public:
 	unsigned int id;
 	Shader(const char* vertexShaderPath, const char* fragmentShaderPath);
 	void activate();
+	void checkCompileErrors(unsigned int shader, std::string type);
 
 	// utility functions
 	std::string loadShaderSrc(const char* filepath);
